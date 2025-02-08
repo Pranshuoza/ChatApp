@@ -8,17 +8,17 @@ import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuth";
-// import { useThemeStore } from "./store/useThemeStore";
+import { useThemeStore } from "./store/useThemeStore";
 import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
 
-  console.log({ onlineUsers });
+  // console.log({ onlineUsers });
 
   useEffect(() => {
     checkAuth();
@@ -26,17 +26,17 @@ const App = () => {
 
   console.log({ authUser });
 
-  if (isCheckingAuth && !authUser)
+  if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader className="size-10 animate-spin" />
       </div>
     );
-
+  }
+  
   return (
     <div data-theme={theme}>
       <Navbar />
-
       <Routes>
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
