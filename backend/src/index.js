@@ -13,7 +13,6 @@ import { app, server } from "./lib/socket.js";
 dotenv.config();
 
 const __dirname = path.resolve();
-const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -32,7 +31,7 @@ if (process.env.NODE_ENV === "production") {
         res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
     });
 }
-
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log("Server is running on port:" + PORT);
     connectDB()
