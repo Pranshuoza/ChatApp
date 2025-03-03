@@ -17,6 +17,7 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
+
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
@@ -35,7 +36,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed");
+      toast.error(error.response.data.message);
     } finally {
       set({ isSigningUp: false });
     }
@@ -47,11 +48,10 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
       toast.success("Logged in successfully");
+
       get().connectSocket();
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
-      toast.error(errorMessage);
-      console.log("Login error:", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isLoggingIn: false });
     }
@@ -64,7 +64,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Logged out successfully");
       get().disconnectSocket();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Logout failed");
+      toast.error(error.response.data.message);
     }
   },
 
@@ -75,7 +75,8 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Update failed");
+      console.log("error in update profile:", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfile: false });
     }
@@ -86,25 +87,18 @@ export const useAuthStore = create((set, get) => ({
     if (!authUser || get().socket?.connected) return;
 
     const socket = io(BASE_URL, {
-      query: { userId: authUser._id },
-      transports: ["websocket"], // ✅ Ensure WebSocket transport
-      timeout: 60000, // ✅ Increase timeout to 60 seconds
+      query: {
+        userId: authUser._id,
+      },
     });
-
     socket.connect();
 
-    set({ socket });
+    set({ socket: socket });
 
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
-
-    socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err);
-      toast.error("WebSocket connection failed");
-    });
   },
-
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
