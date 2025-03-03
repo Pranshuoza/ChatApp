@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
 import path from "path";
 
 import authRoutes from "./routes/authRoute.js";
@@ -13,32 +12,35 @@ import { app, server } from "./lib/socket.js";
 dotenv.config();
 
 const __dirname = path.resolve();
+app.use(cookieParser());
 
 const allowedOrigins = [
-  'http://localhost:5173', // Local dev
-  'https://chat-app-hw63.vercel.app', // Deployed frontend
+  "http://localhost:5173",
+  "https://chat-app-hw63.vercel.app",
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'), false);
-  },
-  methods: ['GET', 'POST', 'OPTIONS','PUT','DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"), false);
+    },
+    methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-    res.send(`
+  res.send(`
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -51,20 +53,20 @@ app.get("/", (req, res) => {
       </body>
       </html>
     `);
-  });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoute);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
-
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log("Server is running on port:" + PORT);
+  console.log(" Server is running on port:", PORT);
   connectDB();
 });
